@@ -1,0 +1,7 @@
+1;Complete Setup by filling all applicable data points.;		When starting a risk scenario assessment, fill out each of the fields on the "Setup" screen.
+2;Complete the "Analysis - Threat Event Frequency" section on the "Input" screen by first using the dropdowns.;		Use the dropdowns to best select the numerical value that corresponds to the attribute. It is important to note the level descriptions should be used as a guide and are less important than the bolded question.
+3;Complete the "Analysis - Resistance Strength" section on the "Input" screen to identify which NIST CSF Functions are applicable to the Risk Scenario.;		Select the appropriate NIST CSF Categories which would protect against the Scenario. Then provide a score and where in the Kill Chain the attack would be impeded.
+4;Complete the "Analysis - Impact" section on the "Input" screen by filling all of the "Response" fields.;		Use the dropdowns to best select the numerical value that corresponds to the attribute. It is important to note the level descriptions should be used as a guide and are less important than the bolded question.
+5;Fill the "Assessment Completion Date" in the "Setup" screen and archive the assessment tool. Continue to Risk Treatment Options outside of this tool.;		Save ...
+
+
