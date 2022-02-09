@@ -13,7 +13,7 @@ def app():
         scenario_description = st.text_input('Scenario Description', '')
         asset = st.text_input('Asset', '')
         value_chain_impacts = st.text_input('Value Chain Impacts', '')
-        assessment_date = st.date_input("Assessment Date",  datetime.date(2022, 1, 1))
+        assessment_date = st.date_input("Assessment Date",  datetime.date.today())
         notes = st.text_input('Notes', '')
 
     with col2:
