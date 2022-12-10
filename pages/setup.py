@@ -2,8 +2,8 @@ import streamlit as st
 import datetime
 import pandas as pd
 
-def app():
 
+def app():
     col1, col2 = st.columns(2)
 
     with col1:
@@ -12,11 +12,14 @@ def app():
         scenario_id = st.text_input('Scenario ID', 'Risk Scenario #X')
         scenario_description = st.text_input('Scenario Description', '')
         asset = st.text_input('Asset', '')
-        value_chain_impacts = st.text_input('Value Chain Impacts', '')
-        assessment_date = st.date_input("Assessment Date",  datetime.date.today())
+        assessment_date = st.date_input("Assessment Date", datetime.date.today())
         notes = st.text_input('Notes', '')
 
     with col2:
+        st.markdown("### Compute")
+        with st.form(key="my_form"):
+            pressed = st.form_submit_button("Go")
+
         st.markdown("### Export")
 
         @st.cache

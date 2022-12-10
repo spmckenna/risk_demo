@@ -11,13 +11,13 @@ app = MultiPage()
 
 # Title of the main page
 st.set_page_config(layout="wide")
-st.title("Vista Equity Partners Risk Assessment Tool")
+st.title("Cyber Risk Platform (CRiPto)")
 
 # Add all your applications (pages) here
 app.add_page("Setup", setup.app)
-app.add_page("Instructions", instructions.app)
 app.add_page("Inputs", inputs.app)
 app.add_page("Results", results.app)
+app.add_page("Instructions", instructions.app)
 
 # The main app
 app.run()
