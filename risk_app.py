@@ -163,7 +163,7 @@ with st.container():
 
         scenario = Scenario(attackAction=action.lower(), attackThreatType=actor.lower().replace(" ", ""),
                             attackTarget='enterprise',
-                            attackLossType=loss.lower(), attackIndustry=industry.lower(),
+                            attackLossType=loss.lower(), attackIndustry=industry.lower().replace(" ", ""),
                             attackGeography=region.lower(), orgSize=size.lower())
         # scenario = Scenario()
         identify = CsfIdentify(IDAM=IDAM(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
