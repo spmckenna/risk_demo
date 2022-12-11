@@ -5,13 +5,13 @@ import os
 
 from typing import List
 
-from bah.model.VistaInput import VistaInput, AttackMotivators, Exploitability, AttackSurface, ThreatActorInput, \
+from  model.model.VistaInput import VistaInput, AttackMotivators, Exploitability, AttackSurface, ThreatActorInput, \
     CsfFunction, CsfIdentify, Scenario, \
     IDAM, IDBE, IDGV, IDRA, IDRM, IDSC, \
     CsfProtect, CsfDetect, CsfRespond, CsfRecover, DirectImpact, Impact, IndirectImpact, PRAC, PRAT, PRDS, PRIP, PRMA, \
     PRPT, DEAE, DECM, DEDP, RSRP, RSCO, RSAN, RSMI, RSIM, RCRP, RCIM, RCCO
-from bah.model.run_vista import runVista
-from bah.resources.ttp_coverage_resource import MitreAttackControl
+from model.model.run_vista import runVista
+from model.resources.ttp_coverage_resource import MitreAttackControl
 
 graph = nx.read_graphml(os.path.join(os.path.dirname(__file__),
                                      '../model/resources/vista_enterprise_network_model.graphml'))

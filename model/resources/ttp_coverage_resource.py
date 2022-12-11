@@ -1,8 +1,8 @@
 from flask_restful import Resource
 from flask import request
 from dataclasses import dataclass
-from bah.model.VistaOutput import ValueVar
-from bah.model.run_vista import run_ttp_coverage_metric
+from model.model.VistaOutput import ValueVar
+from model.model.run_vista import run_ttp_coverage_metric
 
 
 @dataclass

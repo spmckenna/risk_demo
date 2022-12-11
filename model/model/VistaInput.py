@@ -1,6 +1,6 @@
 from typing import List
 from model.model.config import THREAT_ACTOR_CAPACITY_VALUES, THREAT_ACTOR_CAPACITY_WEIGHTS
-from bah.resources.ttp_coverage_resource import MitreAttackControl
+from model.resources.ttp_coverage_resource import MitreAttackControl
 
 
 class AttackMotivators:
