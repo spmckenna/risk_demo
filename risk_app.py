@@ -42,7 +42,7 @@ with st.container():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("### Setup")
+        st.markdown("### Scenario")
 
         scenario_id = st.text_input('Scenario ID', 'Risk Scenario #X')
         scenario_description = st.text_input('Scenario Description', '')
@@ -88,21 +88,21 @@ with st.container():
                 ("Low", "Medium", "High"), key="determination", index=2)
 
         with st.expander("Controls"):
-            protectScore = st.selectbox(
-                "Protect Score",
-                ("1", "2", "3", "4", "5"), key="protectScore", index=2)
-            respondScore = st.selectbox(
-                "Respond Score",
-                ("1", "2", "3", "4", "5"), key="respondScore", index=2)
-            identifyScore = st.selectbox(
+            identifyScore = 0.25*(float(st.selectbox(
                 "Identify Score",
-                ("1", "2", "3", "4", "5"), key="identifyScore", index=2)
-            detectScore = st.selectbox(
+                ("1", "2", "3", "4", "5"), key="identifyScore", index=2)) - 1)
+            protectScore = 0.25*(float(st.selectbox(
+                "Protect Score",
+                ("1", "2", "3", "4", "5"), key="protectScore", index=2)) - 1)
+            respondScore = 0.25*(float(st.selectbox(
+                "Respond Score",
+                ("1", "2", "3", "4", "5"), key="respondScore", index=2)) - 1)
+            detectScore = 0.25*(float(st.selectbox(
                 "Detect Score",
-                ("1", "2", "3", "4", "5"), key="detectScore", index=2)
-            recoverScore = st.selectbox(
+                ("1", "2", "3", "4", "5"), key="detectScore", index=2)) - 1)
+            recoverScore = 0.25*(float(st.selectbox(
                 "Recover Score",
-                ("1", "2", "3", "4", "5"), key="recoverScore", index=2)
+                ("1", "2", "3", "4", "5"), key="recoverScore", index=2)) - 1)
 
         with st.expander("Impact"):
             minDollars = st.selectbox(
@@ -148,8 +148,8 @@ with st.container():
                                IDRA=IDRA(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
                                IDRM=IDRM(0.8, 0.8, 0.8, 0.8),
                                IDSC=IDSC(0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
-                               value=(float(identifyScore) - 1) / 4)
-        protect = CsfProtect(value=(float(protectScore) - 1) / 4,
+                               value=identifyScore)
+        protect = CsfProtect(value=protectScore,
                              PRAC=PRAC(value=0.4, PRAC1=0.4, PRAC2=0.4, PRAC3=0.4, PRAC4=0.4, PRAC5=0.4,
                                        PRAC6=0.4,
                                        PRAC7=0.4),
@@ -163,14 +163,14 @@ with st.container():
                                        PRIP9=0.4, PRIP10=0.4, PRIP11=0.4, PRIP12=0.4),
                              PRMA=PRMA(value=0.4, PRMA1=0.4, PRMA2=0.4),
                              PRPT=PRPT(value=0.4, PRPT1=0.4, PRPT2=0.4, PRPT3=0.4, PRPT4=0.4, PRPT5=0.4))
-        detect = CsfDetect(value=(float(detectScore) - 1) / 4,
+        detect = CsfDetect(value=detectScore,
                            DEAE=DEAE(value=0.4, DEAE1=0.4, DEAE2=0.4, DEAE3=0.4, DEAE4=0.4, DEAE5=0.4),
                            DECM=DECM(value=0.4, DECM1=0.4, DECM2=0.4, DECM3=0.4, DECM4=0.4, DECM5=0.4,
                                      DECM6=0.4,
                                      DECM7=0.4,
                                      DECM8=0.4),
                            DEDP=DEDP(value=0.4, DEDP1=0.4, DEDP2=0.4, DEDP3=0.4, DEDP4=0.4, DEDP5=0.4))
-        respond = CsfRespond(value=(float(respondScore) - 1) / 4,
+        respond = CsfRespond(value=respondScore,
                              RSRP=RSRP(value=0.426, RSRP1=0.426),
                              RSCO=RSCO(value=0.426, RSCO1=0.426, RSCO2=0.426, RSCO3=0.426, RSCO4=0.426,
                                        RSCO5=0.426),
@@ -178,7 +178,7 @@ with st.container():
                                        RSAN5=0.426),
                              RSMI=RSMI(value=0.426, RSMI1=0.426, RSMI2=0.426, RSMI3=0.426),
                              RSIM=RSIM(value=0.426, RSIM1=0.426, RSIM2=0.426))
-        recover = CsfRecover(value=(float(recoverScore) - 1) / 4,
+        recover = CsfRecover(value=recoverScore,
                              RCRP=RCRP(value=0.426, RCRP1=0.426),
                              RCIM=RCIM(value=0.426, RCIM1=0.426, RCIM2=0.426),
                              RCCO=RCCO(value=0.426, RCCO1=0.426, RCCO2=0.426, RCCO3=0.426))
@@ -197,7 +197,6 @@ with st.container():
                                  scenario=scenario,
                                  mitreControls=[])
 
-        #with st.spinner('Wait for it ...'):
         with st.form(key="my_form"):
             pressed = st.form_submit_button("Go!")
 
@@ -263,7 +262,7 @@ with st.container():
             'protect': [protectScore],
             'detect': [detectScore],
             'respond': [respondScore],
-            'recover': [recover]
+            'recover': [recoverScore]
         })
 
         csv = convert_df(df)
