@@ -253,9 +253,9 @@ with st.container():
         else:
             lh_color = COLOR_BLUE
 
-        if vista_output.overallResidualImpact.value > avgDollars:
+        if vista_output.overallResidualImpact.value > float(avgDollars):
             imp_color = COLOR_RED
-        elif vista_output.overallResidualImpact.value > (avgDollars+minDollars)/2:
+        elif vista_output.overallResidualImpact.value > (float(avgDollars) + float(minDollars)) / 2:
             imp_color = COLOR_YELLOW
         else:
             imp_color = COLOR_BLUE
