@@ -36,7 +36,8 @@ def display_dial(title, value, color):
 
 # Title of the main page
 st.set_page_config(layout="wide")
-st.title("Cyber Risk Platform (CRiPto)")
+#st.title("Cyber Risk Platform (CRiPto)")
+st.header("Simulation of Probabilistic Risk (SuPeR)")
 
 with st.container():
     col1, col2 = st.columns(2)
@@ -207,8 +208,10 @@ with st.container():
             with st.container():
 
                 vista_output = runVista(vista_input, graph)
-
-                st.write("## Scenario: ", action, "by ", actor, "causing ", loss, "-type loss")
+                lossDict = {'c': 'Confidentiality',
+                            'i': 'Integrity',
+                            'a': 'Availability'}
+                st.write("## Scenario: ", action, "by ", actor, "causing loss of ", lossDict[loss.lower()], ".")
 
                 COLOR_RED = "#FF4B4B"
                 COLOR_BLUE = "#1C83E1"
