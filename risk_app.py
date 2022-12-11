@@ -260,11 +260,10 @@ with st.container():
 
 
         df = pd.DataFrame({
-            'group': ['A', 'B', 'C', 'D'],
-            'frequency': [38, 1.5, 30, 4],
-            'vulnerability': [29, 10, 9, 34],
-            'primary loss': [8, 39, 23, 24],
-            'secondary risk': [7, 31, 33, 14]
+            'protect': [protectScore],
+            'detect': [detectScore],
+            'respond': [respondScore],
+            'recover': [recover]
         })
 
         csv = convert_df(df)
@@ -272,7 +271,7 @@ with st.container():
         st.download_button(
             label="Download to CSV",
             data=csv,
-            file_name='vista.csv',
+            file_name='risk_results.csv',
             mime='text/csv',
         )
 
