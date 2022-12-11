@@ -200,7 +200,7 @@ def compute_quant_impact(vistaInput, nIterations):
     scale = vistaInput.quantImpact.maxImpact
     impact = PERT(vistaInput.quantImpact.minImpact/scale, vistaInput.quantImpact.avgImpact/scale,
                   vistaInput.quantImpact.maxImpact/scale).rvs(size=nIterations)
-    return impact[0], scale
+    return impact, scale
 
 
 def update_attack_probability_given_rate(poissonRate, timeWindow, attackMotivator):
@@ -293,15 +293,14 @@ def runVista(vistaInput, graph, prog_bar=None, sweep=False):
     np.random.seed(random_seed)
 
     numberOfMonteCarloRuns = INPUTS['numberOfMonteCarloRuns']
-    impactCalcMode = INPUTS['impactCalcMode']
     coeffs = INPUTS['tac_v_ctrl_coeffs']
 
     # Compute quant impact
-    impactValue, impactScale = compute_quant_impact(vistaInput, 1)
+    impactValue, impactScale = compute_quant_impact(vistaInput, numberOfMonteCarloRuns)
 
     # Define the "atomic" entity
     enterprise = Organization('enterprise', label='Enterprise')
-    enterprise.assign_value(impactValue * impactScale, 'self')
+    #enterprise.assign_value(impactValue * impactScale, 'self')
 
     # Create list of all entities
     allEntitiesList = [enterprise]
@@ -582,12 +581,14 @@ def runVista(vistaInput, graph, prog_bar=None, sweep=False):
                 if residualExecution and residualAccessIA:
                     residualAccess = 1.
                     inherentAccess = 1.
+                    nextNode.assign_value(impactValue[iteration] * impactScale, 'self')
                     inherentImpact, residualImpact = determine_impact(respondRecoverRVInherent[iteration],
                                                                       respondRecoverRVResidual[iteration], nextNode)
                     logger.debug(' Inherent Impact: ' + str(round(inherentImpact, 2)))
                     logger.debug(' Residual Impact: ' + str(round(residualImpact, 2)))
                 elif inherentExecution:
                     inherentAccess = 1.
+                    nextNode.assign_value(impactValue[iteration] * impactScale, 'self')
                     inherentImpact, residualImpact = determine_impact(respondRecoverRVInherent[iteration],
                                                                       respondRecoverRVResidual[iteration], nextNode)
                     logger.debug(' Inherent Impact: ' + str(round(residualImpact, 2)))
@@ -717,8 +718,8 @@ def runVista(vistaInput, graph, prog_bar=None, sweep=False):
                 priorAttackProbability=float(probability_scale_factor0),
                 attackProbability=float(probability_scale_factor),
                 attackMotivators=float(attackMotivator),
-                directImpact=float(impactValue),
-                indirectImpact=float(impactValue))))
+                directImpact=a.impactR,
+                indirectImpact=a.impactR)))
 
             return VistaOutput(
                 overallInherentLikelihood=ValueVar(float(a.lhI), a.LH_varI, a.LH_confIntI),
@@ -735,8 +736,8 @@ def runVista(vistaInput, graph, prog_bar=None, sweep=False):
                 priorAttackProbability=float(probability_scale_factor0),
                 attackProbability=float(probability_scale_factor),
                 attackMotivators=float(attackMotivator),
-                directImpact=float(impactValue),
-                indirectImpact=float(impactValue)
+                directImpact=a.impactR,
+                indirectImpact=a.impactR
             )
 
 

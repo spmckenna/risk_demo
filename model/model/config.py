@@ -1,5 +1,5 @@
 INPUTS = {
-    'numberOfMonteCarloRuns': 1000,
+    'numberOfMonteCarloRuns': 5000,
     'bbn_file': './scenario_module/scenario_bbn_dbir.json',
     'impactCalcMode': 'mean',  # mean or max
     'control_mapping_refresh': False,
