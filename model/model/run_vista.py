@@ -190,6 +190,19 @@ def compute_impact_values(vistaInput, impactCalcMode='mean'):
     return impact, directImpactValue, indirectImpactValue
 
 
+def compute_quant_impact(vistaInput, nIterations):
+    """
+    Compute quant impact
+    :param vistaInput: input object containing input impact values
+    :param nIterations number of values to return
+    :return: quant impact
+    """
+    scale = vistaInput.quantImpact.maxImpact
+    impact = PERT(vistaInput.quantImpact.minImpact/scale, vistaInput.quantImpact.avgImpact/scale,
+                  vistaInput.quantImpact.maxImpact/scale).rvs(size=nIterations)
+    return impact[0], scale
+
+
 def update_attack_probability_given_rate(poissonRate, timeWindow, attackMotivator):
     """
     Compute the posterior probability of attack using a prior attack rate estimate and new information -- in this case,
@@ -258,7 +271,7 @@ def update_metric(x, z, baselineStdDev=0.2, measStdDev=0.1):
     return x11, p11
 
 
-def runVista(vistaInput, graph, sweep=False):
+def runVista(vistaInput, graph, prog_bar=None, sweep=False):
     """
     Main routine to run the Booz Allen Cyber Risk Engine
     :param vistaInput: input object
@@ -283,12 +296,12 @@ def runVista(vistaInput, graph, sweep=False):
     impactCalcMode = INPUTS['impactCalcMode']
     coeffs = INPUTS['tac_v_ctrl_coeffs']
 
-    # Compute total impact from direct and indirect
-    impactValue, directImpactValue, indirectImpactValue = compute_impact_values(vistaInput, impactCalcMode)
+    # Compute quant impact
+    impactValue, impactScale = compute_quant_impact(vistaInput, 1)
 
     # Define the "atomic" entity
     enterprise = Organization('enterprise', label='Enterprise')
-    enterprise.assign_value(impactValue, 'self')
+    enterprise.assign_value(impactValue * impactScale, 'self')
 
     # Create list of all entities
     allEntitiesList = [enterprise]
@@ -426,7 +439,8 @@ def runVista(vistaInput, graph, sweep=False):
     """
 
     for iteration in range(0, numberOfMonteCarloRuns):
-
+        if prog_bar is not None:
+            prog_bar.progress(iteration/(numberOfMonteCarloRuns-1))
         tryCountI, tryCountR = 1, 1
         origin = 'internet'
         destination = 'enterprise'  # attack target
@@ -600,8 +614,8 @@ def runVista(vistaInput, graph, sweep=False):
     for a in allEntitiesList:
         a.lhR_vec = probability_scale_factor * a.accessR
         a.lhI_vec = probability_scale_factor * a.accessI
-        a.impR_vec = a.impactR
-        a.impI_vec = a.impactI
+        a.impR_vec = a.impactR/impactScale
+        a.impI_vec = a.impactI/impactScale
         a.riskI_vec = np.multiply(a.lhI_vec, a.impI_vec)
         a.riskR_vec = np.multiply(a.lhR_vec, a.impR_vec)
 
@@ -691,8 +705,8 @@ def runVista(vistaInput, graph, sweep=False):
             logger.debug('output: ' + str(VistaOutput(
                 overallInherentLikelihood=ValueVar(float(a.lhI), a.LH_varI, a.LH_confIntI),
                 overallResidualLikelihood=ValueVar(float(a.lhR), a.LH_varR, a.LH_confIntR),
-                overallInherentImpact=ValueVar(float(a.impI), a.imp_varI, a.imp_confIntI),
-                overallResidualImpact=ValueVar(float(a.impR), a.imp_varR, a.imp_confIntR),
+                overallInherentImpact=ValueVar(float(a.impI)*impactScale, a.imp_varI, a.imp_confIntI),
+                overallResidualImpact=ValueVar(float(a.impR)*impactScale, a.imp_varR, a.imp_confIntR),
                 overallInherentRiskLevel=ValueVar(a.riskLevelI, float(a.riskLevel_varI), a.riskLevel_confIntI),
                 overallResidualRiskLevel=ValueVar(a.riskLevelR, float(a.riskLevel_varR), a.riskLevel_confIntR),
                 attackSurface=float(attackSurface),
@@ -703,14 +717,14 @@ def runVista(vistaInput, graph, sweep=False):
                 priorAttackProbability=float(probability_scale_factor0),
                 attackProbability=float(probability_scale_factor),
                 attackMotivators=float(attackMotivator),
-                directImpact=float(directImpactValue),
-                indirectImpact=float(indirectImpactValue))))
+                directImpact=float(impactValue),
+                indirectImpact=float(impactValue))))
 
             return VistaOutput(
                 overallInherentLikelihood=ValueVar(float(a.lhI), a.LH_varI, a.LH_confIntI),
                 overallResidualLikelihood=ValueVar(float(a.lhR), a.LH_varR, a.LH_confIntR),
-                overallInherentImpact=ValueVar(float(a.impI), a.imp_varI, a.imp_confIntI),
-                overallResidualImpact=ValueVar(float(a.impR), a.imp_varR, a.imp_confIntR),
+                overallInherentImpact=ValueVar(float(a.impI)*impactScale, a.imp_varI, a.imp_confIntI),
+                overallResidualImpact=ValueVar(float(a.impR)*impactScale, a.imp_varR, a.imp_confIntR),
                 overallInherentRiskLevel=ValueVar(a.riskLevelI, float(a.riskLevel_varI), a.riskLevel_confIntI),
                 overallResidualRiskLevel=ValueVar(a.riskLevelR, float(a.riskLevel_varR), a.riskLevel_confIntR),
                 attackSurface=float(attackSurface),
@@ -721,8 +735,8 @@ def runVista(vistaInput, graph, sweep=False):
                 priorAttackProbability=float(probability_scale_factor0),
                 attackProbability=float(probability_scale_factor),
                 attackMotivators=float(attackMotivator),
-                directImpact=float(directImpactValue),
-                indirectImpact=float(indirectImpactValue)
+                directImpact=float(impactValue),
+                indirectImpact=float(impactValue)
             )
 
 

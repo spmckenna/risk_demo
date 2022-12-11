@@ -3,8 +3,7 @@ import pandas as pd
 import networkx as nx
 import os
 from model.model.VistaInput import VistaInput, AttackMotivators, AttackSurface, Exploitability, ThreatActorInput, \
-    Impact, \
-    DirectImpact, IndirectImpact, CsfFunction, CsfIdentify, IDAM, CsfProtect, IDBE, IDGV, IDSC, IDRM, IDRA, PRAC, PRAT, \
+    quantImpact, CsfFunction, CsfIdentify, IDAM, CsfProtect, IDBE, IDGV, IDSC, IDRM, IDRA, PRAC, PRAT, \
     PRDS, PRIP, PRMA, PRPT, CsfDetect, DEAE, DECM, DEDP, CsfRespond, RSRP, RSCO, RSAN, RSMI, RSIM, CsfRecover, RCCO, \
     RCIM, RCRP
 from model.model.run_vista import runVista
@@ -14,6 +13,11 @@ from htbuilder.units import rem
 import datetime
 import matplotlib.pyplot as plt
 from math import pi
+
+
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 
 def display_dial(title, value, color):
@@ -34,9 +38,7 @@ def display_dial(title, value, color):
     )
 
 
-# Title of the main page
-st.set_page_config(layout="wide")
-#st.title("Cyber Risk Platform (CRiPto)")
+local_css(os.path.join(os.path.dirname(__file__), "style.css"))
 st.header("Simulation of Probabilistic Risk (SuPeR)")
 
 with st.container():
@@ -106,24 +108,28 @@ with st.container():
                 ("1", "2", "3", "4", "5"), key="recoverScore", index=2)) - 1)
 
         with st.expander("Impact"):
-            minDollars = st.selectbox(
-                "Minimum $ loss (x1M)",
-                ("1", "2", "3", "4", "5"), key="minDollars", index=2)
-            averageDollars = st.selectbox(
-                "Average $ loss (x1M)",
-                ("1", "2", "3", "4", "5"), key="averageDollars", index=2)
-            maxDollars = st.selectbox(
-                "Maximum $ loss (x1M)",
-                ("1", "2", "3", "4", "5"), key="maxDollars", index=2)
-            minRep = st.selectbox(
-                "Minimum reputation loss",
-                ("1", "2", "3", "4", "5"), key="minRep", index=2)
-            averageRep = st.selectbox(
-                "Average reputation loss",
-                ("1", "2", "3", "4", "5"), key="averageRep", index=2)
-            maxRep = st.selectbox(
-                "Maximum reputation loss",
-                ("1", "2", "3", "4", "5"), key="maxRep", index=2)
+            minDollars = st.text_input('Minimum $ loss (x $1M)', '1', key="minDollars")
+            avgDollars = st.text_input('Mean $ loss (x $1M)', '3', key="avgDollars")
+            maxDollars = st.text_input('Maximum $ loss (x $1M)', '10', key="maxDollars")
+
+            #     st.selectbox(
+            #     "Minimum $ loss (x1M)",
+            #     ("1", "2", "3", "4", "5"), key="minDollars", index=2)
+            # averageDollars = st.selectbox(
+            #     "Average $ loss (x1M)",
+            #     ("1", "2", "3", "4", "5"), key="averageDollars", index=2)
+            # maxDollars = st.selectbox(
+            #     "Maximum $ loss (x1M)",
+            #     ("1", "2", "3", "4", "5"), key="maxDollars", index=2)
+            # minRep = st.selectbox(
+            #     "Minimum reputation loss",
+            #     ("1", "2", "3", "4", "5"), key="minRep", index=2)
+            # averageRep = st.selectbox(
+            #     "Average reputation loss",
+            #     ("1", "2", "3", "4", "5"), key="averageRep", index=2)
+            # maxRep = st.selectbox(
+            #     "Maximum reputation loss",
+            #     ("1", "2", "3", "4", "5"), key="maxRep", index=2)
 
         st.markdown("### Compute")
 
@@ -135,9 +141,11 @@ with st.container():
         exploitability = Exploitability(2.5)
         threatActorInput = ThreatActorInput(determination=determination.lower(), resources=resources.lower(),
                                             sophistication=sophistication.lower())
-        directImpact = DirectImpact(3, float(maxDollars), float(averageDollars), float(minDollars))
-        indirectImpact = IndirectImpact(3, float(maxRep), float(averageRep), float(minRep))
-        impact = Impact(directImpact, indirectImpact)
+        #directImpact = DirectImpact(3, float(maxDollars), float(averageDollars), float(minDollars))
+        #indirectImpact = IndirectImpact(3, float(maxRep), float(averageRep), float(minRep))
+        #impact = Impact(directImpact, indirectImpact)
+        quantImpact = quantImpact(float(minDollars), float(avgDollars), float(maxDollars))
+
         scenario = Scenario(attackAction=action.lower(), attackThreatType=actor.lower().replace(" ", ""),
                             attackTarget='enterprise',
                             attackLossType=loss.lower(), attackIndustry=industry.lower(),
@@ -193,73 +201,93 @@ with st.container():
                                  attackSurface=attackSurface,
                                  exploitability=exploitability,
                                  threatActorInput=threatActorInput,
-                                 impact=impact,
+                                 quantImpact=quantImpact,
                                  csf=csf,
                                  scenario=scenario,
                                  mitreControls=[])
 
         with st.form(key="my_form"):
             pressed = st.form_submit_button("Go!")
+            run = False
 
 with st.container():
+
     if pressed:
-        st.markdown("### Results")
-        with st.spinner('Wait for it ...'):
-            with st.container():
+        stop = False
+        if float(avgDollars) <= float(minDollars):
+            st.error('Average impact must be >= minimum impact')
+            stop = True
+        elif float(maxDollars) <= float(avgDollars):
+            st.error('Maximum impact must be >= average impact')
+            stop = True
+        if not stop:
+            st.markdown("### Results")
+            #with st.spinner('Wait for it ...'):
+            #with st.container():
+            prog_bar = st.progress(0)
+            vista_output = runVista(vista_input, graph, prog_bar)
+            run = True
 
-                vista_output = runVista(vista_input, graph)
-                lossDict = {'c': 'Confidentiality',
-                            'i': 'Integrity',
-                            'a': 'Availability'}
-                st.write("## Scenario: ", action, "by ", actor, "causing loss of ", lossDict[loss.lower()], ".")
+    if run:
 
-                COLOR_RED = "#FF4B4B"
-                COLOR_BLUE = "#1C83E1"
-                COLOR_CYAN = "#00C0F2"
-                COLOR_YELLOW = "#FFC300"
+        lossDict = {'c': 'Confidentiality',
+                    'i': 'Integrity',
+                    'a': 'Availability'}
+        st.write("###", action, "by ", actor, "causing loss of ", lossDict[loss.lower()])
+        st.write("Assuming the scenario occurs, these results quantify the likelihood of, and the loss due to, a successful attack.")
+        st.write("The Risk Level combines these two elements into a single risk score - higher scores mean higher risk.")
 
-                if vista_output.overallResidualRiskLevel.value > 4:
-                    risk_color = COLOR_RED
-                elif vista_output.overallResidualRiskLevel.value > 2.5:
-                    risk_color = COLOR_YELLOW
-                else:
-                    risk_color = COLOR_BLUE
+        COLOR_RED = "#FF4B4B"
+        COLOR_BLUE = "#1C83E1"
+        COLOR_CYAN = "#00C0F2"
+        COLOR_YELLOW = "#FFC300"
 
-                if vista_output.overallResidualLikelihood.value > .2:
-                    lh_color = COLOR_RED
-                elif vista_output.overallResidualLikelihood.value > .1:
-                    lh_color = COLOR_YELLOW
-                else:
-                    lh_color = COLOR_BLUE
+        if vista_output.overallResidualRiskLevel.value > 4:
+            risk_color = COLOR_RED
+        elif vista_output.overallResidualRiskLevel.value > 2.5:
+            risk_color = COLOR_YELLOW
+        else:
+            risk_color = COLOR_BLUE
 
-                if vista_output.overallResidualImpact.value > 0.2:
-                    imp_color = COLOR_RED
-                elif vista_output.overallResidualImpact.value > .1:
-                    imp_color = COLOR_YELLOW
-                else:
-                    imp_color = COLOR_BLUE
+        if vista_output.overallResidualLikelihood.value > .2:
+            lh_color = COLOR_RED
+        elif vista_output.overallResidualLikelihood.value > .1:
+            lh_color = COLOR_YELLOW
+        else:
+            lh_color = COLOR_BLUE
 
-                subjectivity_color = COLOR_CYAN
+        if vista_output.overallResidualImpact.value > 0.2:
+            imp_color = COLOR_RED
+        elif vista_output.overallResidualImpact.value > .1:
+            imp_color = COLOR_YELLOW
+        else:
+            imp_color = COLOR_BLUE
 
-                a, b, c = st.columns(3)
+        subjectivity_color = COLOR_CYAN
 
-                with a:
-                    display_dial("Risk Level", f"{round(vista_output.overallResidualRiskLevel.value, 2)}", risk_color)
-                with b:
-                    display_dial(
-                        "Likelihood", f"{round(vista_output.overallResidualLikelihood.value, 5)}", lh_color
-                    )
-                with c:
-                    display_dial(
-                        "Impact", f"{round(vista_output.overallResidualImpact.value, 5)}", imp_color
-                    )
+        a, b, c = st.columns(3)
+
+        with a:
+            display_dial("Risk Level", f"{round(vista_output.overallResidualRiskLevel.value, 2)}", risk_color)
+        with b:
+            display_dial(
+                "Likelihood", f"{round(100*vista_output.overallResidualLikelihood.value, 0)}%", lh_color
+            )
+        with c:
+            display_dial(
+                "Impact", f"${round(vista_output.overallResidualImpact.value, 2)}M", imp_color
+            )
+
+        prog_bar.empty()
+        run = False
+
 
         st.markdown("#### Export")
+        st.write("Notional only at this point.")
         @st.cache
         def convert_df(df):
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
             return df.to_csv().encode('utf-8')
-
 
         df = pd.DataFrame({
             'protect': [protectScore],
@@ -276,47 +304,3 @@ with st.container():
             file_name='risk_results.csv',
             mime='text/csv',
         )
-
-
-        #with col1:
-            # Set data
-            # df = pd.DataFrame({
-            #     'group': ['A', 'B', 'C', 'D'],
-            #     'Protect': [(float(protectScore) - 1) / 4, 1, 1, 1],
-            #     'Detect': [1, (float(detectScore) - 1) / 4, 1, 1],
-            #     'Respond': [1, 1, (float(respondScore) - 1) / 4, 1],
-            #     'Recover': [1, 1, 1, (float(recoverScore) - 1) / 4]
-            # })
-            #
-            # # number of variable
-            # categories = list(df)[1:]
-            # N = len(categories)
-            #
-            # # We are going to plot the first line of the data frame.
-            # # But we need to repeat the first value to close the circular graph:
-            # values = df.loc[0].drop('group').values.flatten().tolist()
-            # values += values[:1]
-            #
-            # # What will be the angle of each axis in the plot? (we divide the plot / number of variable)
-            # angles = [n / float(N) * 2 * pi for n in range(N)]
-            # angles += angles[:1]
-            #
-            # # Initialise the spider plot
-            # fig = plt.figure()
-            # ax = plt.subplot(121, polar=True)
-            #
-            # # Draw one axe per variable + add labels
-            # plt.xticks(angles[:-1], categories, color='grey', size=8)
-            #
-            # # Draw ylabels
-            # ax.set_rlabel_position(0)
-            # plt.yticks([.10, .50, 1], ["0.1", "0.5", "1.0"], color="grey", size=7)
-            # plt.ylim(0, 1)
-            #
-            # # Plot data
-            # ax.plot(angles, values, linewidth=1, linestyle='solid')
-            #
-            # # Fill area
-            # ax.fill(angles, values, 'b', alpha=0.1)
-            #
-            # st.pyplot(fig)

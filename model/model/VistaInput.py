@@ -56,6 +56,13 @@ class Impact:
         self.indirectImpact = indirectImpact
 
 
+class quantImpact:
+    def __init__(self, minImpact, avgImpact, maxImpact):
+        self.minImpact = minImpact
+        self.avgImpact = avgImpact
+        self.maxImpact = maxImpact
+
+
 class Scenario:
     def __init__(self, attackAction: str, attackThreatType: str, attackTarget: str, attackLossType: str,
                  attackIndustry: str, attackGeography: str, orgSize: str):
@@ -365,10 +372,10 @@ class VistaInput:
                  attackSurface: AttackSurface,
                  exploitability: Exploitability,
                  threatActorInput: ThreatActorInput,
-                 impact: Impact,
+                 quantImpact: quantImpact,
                  csf: CsfFunction, scenario: Scenario,
                  mitreControls: List[MitreAttackControl]):
-        self.impact = impact
+        self.quantImpact = quantImpact
         self.threatActorInput = threatActorInput
         self.attackSurface = attackSurface
         self.exploitability = exploitability
