@@ -1,5 +1,6 @@
 from typing import List
 from model.model.config import THREAT_ACTOR_CAPACITY_VALUES, THREAT_ACTOR_CAPACITY_WEIGHTS
+from bah.resources.ttp_coverage_resource import MitreAttackControl
 
 
 class AttackMotivators:
@@ -366,7 +367,7 @@ class VistaInput:
                  threatActorInput: ThreatActorInput,
                  impact: Impact,
                  csf: CsfFunction, scenario: Scenario,
-                 mitreControls: List[1]):
+                 mitreControls: List[MitreAttackControl]):
         self.impact = impact
         self.threatActorInput = threatActorInput
         self.attackSurface = attackSurface
