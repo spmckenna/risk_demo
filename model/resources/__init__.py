@@ -1,1 +1,1 @@
-from bah.model import VistaInput
+from model.model import VistaInput
