@@ -59,7 +59,22 @@ with st.container():
         with st.expander("Organization"):
             industry = st.selectbox(
                 "What NCAIS industry is the targeted organization in?",
-                ("Professional", "Finance", "Manufacturing", "Government", "Retail"), key="industry", index=0)
+                ("Accommodation",
+                 "Administrative",
+                 "Construction",
+                 "Education",
+                 "Entertainment",
+                 "Finance",
+                 "Health Care",
+                 "Information",
+                 "Manufacturing",
+                 "Mining and Utilities",
+                 "Other Services",
+                 "Professional",
+                 "Public Administration",
+                 "Real Estate",
+                 "Retail",
+                 "Transportation"), key="industry", index=0)
             size = st.selectbox(
                 "What is the size (employee count) of the targeted organization?",
                 ("Small", "Large"), key="size", index=1)
@@ -91,19 +106,19 @@ with st.container():
                 ("Low", "Medium", "High"), key="determination", index=2)
 
         with st.expander("Controls"):
-            identifyScore = 0.25*(float(st.selectbox(
+            identifyScore = 0.25 * (float(st.selectbox(
                 "Identify Score",
                 ("1", "2", "3", "4", "5"), key="identifyScore", index=2)) - 1)
-            protectScore = 0.25*(float(st.selectbox(
+            protectScore = 0.25 * (float(st.selectbox(
                 "Protect Score",
                 ("1", "2", "3", "4", "5"), key="protectScore", index=2)) - 1)
-            respondScore = 0.25*(float(st.selectbox(
+            respondScore = 0.25 * (float(st.selectbox(
                 "Respond Score",
                 ("1", "2", "3", "4", "5"), key="respondScore", index=2)) - 1)
-            detectScore = 0.25*(float(st.selectbox(
+            detectScore = 0.25 * (float(st.selectbox(
                 "Detect Score",
                 ("1", "2", "3", "4", "5"), key="detectScore", index=2)) - 1)
-            recoverScore = 0.25*(float(st.selectbox(
+            recoverScore = 0.25 * (float(st.selectbox(
                 "Recover Score",
                 ("1", "2", "3", "4", "5"), key="recoverScore", index=2)) - 1)
 
@@ -141,9 +156,9 @@ with st.container():
         exploitability = Exploitability(2.5)
         threatActorInput = ThreatActorInput(determination=determination.lower(), resources=resources.lower(),
                                             sophistication=sophistication.lower())
-        #directImpact = DirectImpact(3, float(maxDollars), float(averageDollars), float(minDollars))
-        #indirectImpact = IndirectImpact(3, float(maxRep), float(averageRep), float(minRep))
-        #impact = Impact(directImpact, indirectImpact)
+        # directImpact = DirectImpact(3, float(maxDollars), float(averageDollars), float(minDollars))
+        # indirectImpact = IndirectImpact(3, float(maxRep), float(averageRep), float(minRep))
+        # impact = Impact(directImpact, indirectImpact)
         quantImpact = quantImpact(float(minDollars), float(avgDollars), float(maxDollars))
 
         scenario = Scenario(attackAction=action.lower(), attackThreatType=actor.lower().replace(" ", ""),
@@ -211,7 +226,6 @@ with st.container():
             run = False
 
 with st.container():
-
     if pressed:
         stop = False
         if float(avgDollars) <= float(minDollars):
@@ -222,8 +236,8 @@ with st.container():
             stop = True
         if not stop:
             st.markdown("### Results")
-            #with st.spinner('Wait for it ...'):
-            #with st.container():
+            # with st.spinner('Wait for it ...'):
+            # with st.container():
             prog_bar = st.progress(0)
             vista_output = runVista(vista_input, graph, prog_bar)
             run = True
@@ -234,8 +248,10 @@ with st.container():
                     'i': 'Integrity',
                     'a': 'Availability'}
         st.write("###", action, "by ", actor, "causing loss of ", lossDict[loss.lower()])
-        st.write("Assuming the scenario occurs, these results quantify the likelihood of, and the loss due to, a successful attack.")
-        st.write("The Risk Level combines these two elements into a single risk score - higher scores mean higher risk.")
+        st.write(
+            "Assuming the scenario occurs, these results quantify the likelihood of, and the loss due to, a successful attack.")
+        st.write(
+            "The Risk Level combines these two elements into a single risk score - higher scores mean higher risk.")
 
         COLOR_RED = "#FF4B4B"
         COLOR_BLUE = "#1C83E1"
@@ -271,7 +287,7 @@ with st.container():
             display_dial("Risk Level", f"{round(vista_output.overallResidualRiskLevel.value, 2)}", risk_color)
         with b:
             display_dial(
-                "Likelihood", f"{round(100*vista_output.overallResidualLikelihood.value, 0)}%", lh_color
+                "Likelihood", f"{round(100 * vista_output.overallResidualLikelihood.value, 0)}%", lh_color
             )
         with c:
             display_dial(
@@ -281,13 +297,15 @@ with st.container():
         prog_bar.empty()
         run = False
 
-
         st.markdown("#### Export")
         st.write("Notional only at this point.")
+
+
         @st.cache
         def convert_df(df):
             # IMPORTANT: Cache the conversion to prevent computation on every rerun
             return df.to_csv().encode('utf-8')
+
 
         df = pd.DataFrame({
             'protect': [protectScore],
