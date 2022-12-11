@@ -80,7 +80,7 @@ with st.container():
                 ("Small", "Large"), key="size", index=1)
             region = st.selectbox(
                 "What geographic region is the targeted organization in?",
-                ("NA", "EMAC", "LAC", "XX"), key="region", index=0)
+                ("NA", "EMAC", "LAC", "APAC", "Global"), key="region", index=0)
 
         with st.expander("Attack"):
             action = st.selectbox(
