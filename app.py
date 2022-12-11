@@ -4,7 +4,7 @@ import streamlit as st
 
 # Custom imports
 from multipage import MultiPage
-from pages import setup, instructions, inputs, results
+from pages import setup, instructions, inputs, compute
 
 # Create an instance of the app
 app = MultiPage()
@@ -16,7 +16,7 @@ st.title("Cyber Risk Platform (CRiPto)")
 # Add all your applications (pages) here
 app.add_page("Setup", setup.app)
 app.add_page("Inputs", inputs.app)
-app.add_page("Results", results.app)
+app.add_page("Compute", compute.app)
 app.add_page("Instructions", instructions.app)
 
 # The main app

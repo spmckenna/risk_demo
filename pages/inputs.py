@@ -1,9 +1,7 @@
 import os.path
-
 import streamlit as st
 import pandas as pd
 import numpy as np
-import os
 
 
 class Scores():
@@ -43,6 +41,8 @@ def app():
             </style>
             """
 #    s1 = Scores()
+
+    st.markdown("### Inputs")
 
     with st.expander("Organization"):
 
