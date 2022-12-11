@@ -127,25 +127,6 @@ with st.container():
             avgDollars = st.text_input('Mean $ loss (x $1M)', '3', key="avgDollars")
             maxDollars = st.text_input('Maximum $ loss (x $1M)', '10', key="maxDollars")
 
-            #     st.selectbox(
-            #     "Minimum $ loss (x1M)",
-            #     ("1", "2", "3", "4", "5"), key="minDollars", index=2)
-            # averageDollars = st.selectbox(
-            #     "Average $ loss (x1M)",
-            #     ("1", "2", "3", "4", "5"), key="averageDollars", index=2)
-            # maxDollars = st.selectbox(
-            #     "Maximum $ loss (x1M)",
-            #     ("1", "2", "3", "4", "5"), key="maxDollars", index=2)
-            # minRep = st.selectbox(
-            #     "Minimum reputation loss",
-            #     ("1", "2", "3", "4", "5"), key="minRep", index=2)
-            # averageRep = st.selectbox(
-            #     "Average reputation loss",
-            #     ("1", "2", "3", "4", "5"), key="averageRep", index=2)
-            # maxRep = st.selectbox(
-            #     "Maximum reputation loss",
-            #     ("1", "2", "3", "4", "5"), key="maxRep", index=2)
-
         st.markdown("### Compute")
 
         graph = nx.read_graphml(os.path.join(os.path.dirname(__file__),
@@ -272,9 +253,9 @@ with st.container():
         else:
             lh_color = COLOR_BLUE
 
-        if vista_output.overallResidualImpact.value > 0.2:
+        if vista_output.overallResidualImpact.value > avgDollars:
             imp_color = COLOR_RED
-        elif vista_output.overallResidualImpact.value > .1:
+        elif vista_output.overallResidualImpact.value > (avgDollars+minDollars)/2:
             imp_color = COLOR_YELLOW
         else:
             imp_color = COLOR_BLUE
