@@ -40,7 +40,7 @@ def display_dial(title, value, color):
 
 local_css(os.path.join(os.path.dirname(__file__), "style.css"))
 st.header("Simulation of Probabilistic Risk (SuPeR)")
-
+st.write("Powered by Cyber Risk Computational Engine (CyRCE) ver. beta.12.11.12")
 with st.container():
     col1, col2 = st.columns(2)
 
@@ -49,8 +49,7 @@ with st.container():
 
         scenario_id = st.text_input('Scenario ID', 'Risk Scenario #X')
         scenario_description = st.text_input('Scenario Description', '')
-        asset = st.text_input('Asset', '')
-        assessment_date = st.date_input("Assessment Date", datetime.date.today())
+        assessment_date = st.date_input("Date", datetime.date.today())
         notes = st.text_input('Notes', '')
 
     with col2:
@@ -112,12 +111,12 @@ with st.container():
             protectScore = 0.25 * (float(st.selectbox(
                 "Protect Score",
                 ("1", "2", "3", "4", "5"), key="protectScore", index=2)) - 1)
-            respondScore = 0.25 * (float(st.selectbox(
-                "Respond Score",
-                ("1", "2", "3", "4", "5"), key="respondScore", index=2)) - 1)
             detectScore = 0.25 * (float(st.selectbox(
                 "Detect Score",
                 ("1", "2", "3", "4", "5"), key="detectScore", index=2)) - 1)
+            respondScore = 0.25 * (float(st.selectbox(
+                "Respond Score",
+                ("1", "2", "3", "4", "5"), key="respondScore", index=2)) - 1)
             recoverScore = 0.25 * (float(st.selectbox(
                 "Recover Score",
                 ("1", "2", "3", "4", "5"), key="recoverScore", index=2)) - 1)
@@ -127,84 +126,85 @@ with st.container():
             avgDollars = st.text_input('Mean $ loss (x $1M)', '3', key="avgDollars")
             maxDollars = st.text_input('Maximum $ loss (x $1M)', '10', key="maxDollars")
 
-        st.markdown("### Compute")
+    st.markdown("### Compute")
 
-        graph = nx.read_graphml(os.path.join(os.path.dirname(__file__),
-                                             'model/model/resources/vista_enterprise_network_model.graphml'))
+    graph = nx.read_graphml(os.path.join(os.path.dirname(__file__),
+                                         'model/model/resources/vista_enterprise_network_model.graphml'))
 
-        attackMotivators = AttackMotivators(2, 3, 2, 3)
-        attackSurface = AttackSurface(2, 3)
-        exploitability = Exploitability(2.5)
-        threatActorInput = ThreatActorInput(determination=determination.lower(), resources=resources.lower(),
-                                            sophistication=sophistication.lower())
-        # directImpact = DirectImpact(3, float(maxDollars), float(averageDollars), float(minDollars))
-        # indirectImpact = IndirectImpact(3, float(maxRep), float(averageRep), float(minRep))
-        # impact = Impact(directImpact, indirectImpact)
-        quantImpact = quantImpact(float(minDollars), float(avgDollars), float(maxDollars))
+    attackMotivators = AttackMotivators(2, 3, 2, 3)
+    attackSurface = AttackSurface(2, 3)
+    exploitability = Exploitability(2.5)
+    threatActorInput = ThreatActorInput(determination=determination.lower(), resources=resources.lower(),
+                                        sophistication=sophistication.lower())
+    # directImpact = DirectImpact(3, float(maxDollars), float(averageDollars), float(minDollars))
+    # indirectImpact = IndirectImpact(3, float(maxRep), float(averageRep), float(minRep))
+    # impact = Impact(directImpact, indirectImpact)
+    quantImpact = quantImpact(float(minDollars), float(avgDollars), float(maxDollars))
 
-        scenario = Scenario(attackAction=action.lower(), attackThreatType=actor.lower().replace(" ", ""),
-                            attackTarget='enterprise',
-                            attackLossType=loss.lower(), attackIndustry=industry.lower().replace(" ", ""),
-                            attackGeography=region.lower(), orgSize=size.lower())
-        # scenario = Scenario()
-        identify = CsfIdentify(IDAM=IDAM(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
-                               IDBE=IDBE(0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
-                               IDGV=IDGV(0.8, 0.8, 0.8, 0.8, 0.8),
-                               IDRA=IDRA(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
-                               IDRM=IDRM(0.8, 0.8, 0.8, 0.8),
-                               IDSC=IDSC(0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
-                               value=identifyScore)
-        protect = CsfProtect(value=protectScore,
-                             PRAC=PRAC(value=0.4, PRAC1=0.4, PRAC2=0.4, PRAC3=0.4, PRAC4=0.4, PRAC5=0.4,
-                                       PRAC6=0.4,
-                                       PRAC7=0.4),
-                             PRAT=PRAT(value=0.4, PRAT1=0.4, PRAT2=0.4, PRAT3=0.4, PRAT4=0.4, PRAT5=0.4),
-                             PRDS=PRDS(value=0.4, PRDS1=0.4, PRDS2=0.4, PRDS3=0.4, PRDS4=0.4, PRDS5=0.4,
-                                       PRDS6=0.4,
-                                       PRDS7=0.4, PRDS8=0.4),
-                             PRIP=PRIP(value=0.4, PRIP1=0.4, PRIP2=0.4, PRIP3=0.4, PRIP4=0.4, PRIP5=0.4,
-                                       PRIP6=0.4,
-                                       PRIP7=0.4, PRIP8=0.4,
-                                       PRIP9=0.4, PRIP10=0.4, PRIP11=0.4, PRIP12=0.4),
-                             PRMA=PRMA(value=0.4, PRMA1=0.4, PRMA2=0.4),
-                             PRPT=PRPT(value=0.4, PRPT1=0.4, PRPT2=0.4, PRPT3=0.4, PRPT4=0.4, PRPT5=0.4))
-        detect = CsfDetect(value=detectScore,
-                           DEAE=DEAE(value=0.4, DEAE1=0.4, DEAE2=0.4, DEAE3=0.4, DEAE4=0.4, DEAE5=0.4),
-                           DECM=DECM(value=0.4, DECM1=0.4, DECM2=0.4, DECM3=0.4, DECM4=0.4, DECM5=0.4,
-                                     DECM6=0.4,
-                                     DECM7=0.4,
-                                     DECM8=0.4),
-                           DEDP=DEDP(value=0.4, DEDP1=0.4, DEDP2=0.4, DEDP3=0.4, DEDP4=0.4, DEDP5=0.4))
-        respond = CsfRespond(value=respondScore,
-                             RSRP=RSRP(value=0.426, RSRP1=0.426),
-                             RSCO=RSCO(value=0.426, RSCO1=0.426, RSCO2=0.426, RSCO3=0.426, RSCO4=0.426,
-                                       RSCO5=0.426),
-                             RSAN=RSAN(value=0.426, RSAN1=0.426, RSAN2=0.426, RSAN3=0.426, RSAN4=0.426,
-                                       RSAN5=0.426),
-                             RSMI=RSMI(value=0.426, RSMI1=0.426, RSMI2=0.426, RSMI3=0.426),
-                             RSIM=RSIM(value=0.426, RSIM1=0.426, RSIM2=0.426))
-        recover = CsfRecover(value=recoverScore,
-                             RCRP=RCRP(value=0.426, RCRP1=0.426),
-                             RCIM=RCIM(value=0.426, RCIM1=0.426, RCIM2=0.426),
-                             RCCO=RCCO(value=0.426, RCCO1=0.426, RCCO2=0.426, RCCO3=0.426))
-        csf = CsfFunction(identify=identify,
-                          protect=protect,
-                          detect=detect,
-                          respond=respond,
-                          recover=recover)
+    scenario = Scenario(attackAction=action.lower(), attackThreatType=actor.lower().replace(" ", ""),
+                        attackTarget='enterprise',
+                        attackLossType=loss.lower(), attackIndustry=industry.lower().replace(" ", ""),
+                        attackGeography=region.lower(), orgSize=size.lower())
+    # scenario = Scenario()
+    identify = CsfIdentify(IDAM=IDAM(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
+                           IDBE=IDBE(0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
+                           IDGV=IDGV(0.8, 0.8, 0.8, 0.8, 0.8),
+                           IDRA=IDRA(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
+                           IDRM=IDRM(0.8, 0.8, 0.8, 0.8),
+                           IDSC=IDSC(0.8, 0.8, 0.8, 0.8, 0.8, 0.8),
+                           value=identifyScore)
+    protect = CsfProtect(value=protectScore,
+                         PRAC=PRAC(value=0.4, PRAC1=0.4, PRAC2=0.4, PRAC3=0.4, PRAC4=0.4, PRAC5=0.4,
+                                   PRAC6=0.4,
+                                   PRAC7=0.4),
+                         PRAT=PRAT(value=0.4, PRAT1=0.4, PRAT2=0.4, PRAT3=0.4, PRAT4=0.4, PRAT5=0.4),
+                         PRDS=PRDS(value=0.4, PRDS1=0.4, PRDS2=0.4, PRDS3=0.4, PRDS4=0.4, PRDS5=0.4,
+                                   PRDS6=0.4,
+                                   PRDS7=0.4, PRDS8=0.4),
+                         PRIP=PRIP(value=0.4, PRIP1=0.4, PRIP2=0.4, PRIP3=0.4, PRIP4=0.4, PRIP5=0.4,
+                                   PRIP6=0.4,
+                                   PRIP7=0.4, PRIP8=0.4,
+                                   PRIP9=0.4, PRIP10=0.4, PRIP11=0.4, PRIP12=0.4),
+                         PRMA=PRMA(value=0.4, PRMA1=0.4, PRMA2=0.4),
+                         PRPT=PRPT(value=0.4, PRPT1=0.4, PRPT2=0.4, PRPT3=0.4, PRPT4=0.4, PRPT5=0.4))
+    detect = CsfDetect(value=detectScore,
+                       DEAE=DEAE(value=0.4, DEAE1=0.4, DEAE2=0.4, DEAE3=0.4, DEAE4=0.4, DEAE5=0.4),
+                       DECM=DECM(value=0.4, DECM1=0.4, DECM2=0.4, DECM3=0.4, DECM4=0.4, DECM5=0.4,
+                                 DECM6=0.4,
+                                 DECM7=0.4,
+                                 DECM8=0.4),
+                       DEDP=DEDP(value=0.4, DEDP1=0.4, DEDP2=0.4, DEDP3=0.4, DEDP4=0.4, DEDP5=0.4))
+    respond = CsfRespond(value=respondScore,
+                         RSRP=RSRP(value=0.426, RSRP1=0.426),
+                         RSCO=RSCO(value=0.426, RSCO1=0.426, RSCO2=0.426, RSCO3=0.426, RSCO4=0.426,
+                                   RSCO5=0.426),
+                         RSAN=RSAN(value=0.426, RSAN1=0.426, RSAN2=0.426, RSAN3=0.426, RSAN4=0.426,
+                                   RSAN5=0.426),
+                         RSMI=RSMI(value=0.426, RSMI1=0.426, RSMI2=0.426, RSMI3=0.426),
+                         RSIM=RSIM(value=0.426, RSIM1=0.426, RSIM2=0.426))
+    recover = CsfRecover(value=recoverScore,
+                         RCRP=RCRP(value=0.426, RCRP1=0.426),
+                         RCIM=RCIM(value=0.426, RCIM1=0.426, RCIM2=0.426),
+                         RCCO=RCCO(value=0.426, RCCO1=0.426, RCCO2=0.426, RCCO3=0.426))
+    csf = CsfFunction(identify=identify,
+                      protect=protect,
+                      detect=detect,
+                      respond=respond,
+                      recover=recover)
 
-        vista_input = VistaInput(attackMotivators=attackMotivators,
-                                 attackSurface=attackSurface,
-                                 exploitability=exploitability,
-                                 threatActorInput=threatActorInput,
-                                 quantImpact=quantImpact,
-                                 csf=csf,
-                                 scenario=scenario,
-                                 mitreControls=[])
+    vista_input = VistaInput(attackMotivators=attackMotivators,
+                             attackSurface=attackSurface,
+                             exploitability=exploitability,
+                             threatActorInput=threatActorInput,
+                             quantImpact=quantImpact,
+                             csf=csf,
+                             scenario=scenario,
+                             mitreControls=[])
 
-        with st.form(key="my_form"):
-            pressed = st.form_submit_button("Go!")
-            run = False
+    with st.form(key="my_form"):
+        pressed = st.form_submit_button("Go!")
+        prog_bar = st.progress(0)
+        run = False
 
 with st.container():
     if pressed:
@@ -219,7 +219,7 @@ with st.container():
             st.markdown("### Results")
             # with st.spinner('Wait for it ...'):
             # with st.container():
-            prog_bar = st.progress(0)
+            #prog_bar = st.progress(0)
             vista_output = runVista(vista_input, graph, prog_bar)
             run = True
 
