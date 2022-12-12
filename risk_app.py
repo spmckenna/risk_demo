@@ -122,9 +122,15 @@ with st.container():
                 ("1", "2", "3", "4", "5"), key="recoverScore", index=2)) - 1)
 
         with st.expander("Impact"):
-            minDollars = st.text_input('Minimum $ loss (x $1M)', '1', key="minDollars")
-            avgDollars = st.text_input('Mean $ loss (x $1M)', '3', key="avgDollars")
-            maxDollars = st.text_input('Maximum $ loss (x $1M)', '10', key="maxDollars")
+            minDollars = float(st.text_input('Minimum $ loss (x $1M)', '1', key="minDollars").replace(",", ""))
+            avgDollars = float(st.text_input('Mean $ loss (x $1M)', '3', key="avgDollars").replace(",", ""))
+            maxDollars = float(st.text_input('Maximum $ loss (x $1M)', '10', key="maxDollars").replace(",", ""))
+            if minDollars > 1000:
+                minDollars = minDollars / 1e6
+            if avgDollars > 1000:
+                avgDollars = avgDollars / 1e6
+            if maxDollars > 1000:
+                maxDollars = maxDollars / 1e6
 
     st.markdown("### Compute")
 
@@ -139,7 +145,7 @@ with st.container():
     # directImpact = DirectImpact(3, float(maxDollars), float(averageDollars), float(minDollars))
     # indirectImpact = IndirectImpact(3, float(maxRep), float(averageRep), float(minRep))
     # impact = Impact(directImpact, indirectImpact)
-    quantImpact = quantImpact(float(minDollars), float(avgDollars), float(maxDollars))
+    quantImpact = quantImpact(minDollars, avgDollars, maxDollars)
 
     scenario = Scenario(attackAction=action.lower(), attackThreatType=actor.lower().replace(" ", ""),
                         attackTarget='enterprise',
@@ -209,17 +215,17 @@ with st.container():
 with st.container():
     if pressed:
         stop = False
-        if float(avgDollars) <= float(minDollars):
+        if avgDollars <= minDollars:
             st.error('Average impact must be >= minimum impact')
             stop = True
-        elif float(maxDollars) <= float(avgDollars):
+        elif maxDollars <= avgDollars:
             st.error('Maximum impact must be >= average impact')
             stop = True
         if not stop:
             st.markdown("### Results")
             # with st.spinner('Wait for it ...'):
             # with st.container():
-            #prog_bar = st.progress(0)
+            # prog_bar = st.progress(0)
             vista_output = runVista(vista_input, graph, prog_bar)
             run = True
 
@@ -253,9 +259,9 @@ with st.container():
         else:
             lh_color = COLOR_BLUE
 
-        if vista_output.overallResidualImpact.value > float(avgDollars):
+        if vista_output.overallResidualImpact.value > avgDollars:
             imp_color = COLOR_RED
-        elif vista_output.overallResidualImpact.value > (float(avgDollars) + float(minDollars)) / 2:
+        elif vista_output.overallResidualImpact.value > (avgDollars + minDollars) / 2:
             imp_color = COLOR_YELLOW
         else:
             imp_color = COLOR_BLUE
